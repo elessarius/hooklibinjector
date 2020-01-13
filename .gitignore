@@ -32,7 +32,7 @@ obj/
 Ankh.NoLoad
 *.VC.db
 .vs/
-!packages/
+packages/**/lib
 
 #GCC files
 *.o
