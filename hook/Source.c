@@ -42,7 +42,7 @@ BOOL WINAPI DllMain(HINSTANCE hinst, DWORD dwReason, LPVOID reserved)
 
 		// Create a hook for MessageBoxW, in disabled state.
 		if (MH_CreateHook(&CreateFileA, &DetourHookFunc,
-			reinterpret_cast<LPVOID*>(&fpOriginalFunc)) != MH_OK)
+			(LPVOID*)(&fpOriginalFunc)) != MH_OK)
 		//if (MH_CreateHookApi(L"kernel32", "CreateFileA", &DetourHookFunc,
 		//	reinterpret_cast<LPVOID*>(&fpOriginalFunc)) != MH_OK)
 		{

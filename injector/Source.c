@@ -51,7 +51,7 @@ BOOL IsX86Process(HANDLE process)
 
 	// x86 environment
 	if (systemInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL)
-		return true;
+		return TRUE;
 
 	// Check if the process is an x86 process that is running on x64 environment.
 	// IsWow64 returns true if the process is an x86 process
@@ -97,8 +97,12 @@ BOOL inject(DWORD dwPID, char *szDllPath)
 {
 	DWORD dwErr = 0;
 	SIZE_T dllPathSize = strlen(szDllPath) + 1;
+	HANDLE hRemoteThread;
+	LPVOID lpLoadDllPath;
+	LPVOID lpLoadLibraryAFunction;
+	HANDLE hProcess;
 
-	HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwPID);
+	hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwPID);
 	if (!hProcess)
 	{
 		dwErr = GetLastError();
@@ -106,7 +110,7 @@ BOOL inject(DWORD dwPID, char *szDllPath)
 		return FALSE;
 	}
 
-	LPVOID lpLoadLibraryAFunction = (LPVOID)GetProcAddress(GetModuleHandle("kernel32.dll"), "LoadLibraryA");
+	lpLoadLibraryAFunction = (LPVOID)GetProcAddress(GetModuleHandle("kernel32.dll"), "LoadLibraryA");
 	if (!lpLoadLibraryAFunction)
 	{
 		dwErr = GetLastError();
@@ -115,7 +119,7 @@ BOOL inject(DWORD dwPID, char *szDllPath)
 		return FALSE;
 	}
 
-	LPVOID lpLoadDllPath = VirtualAllocEx(hProcess, NULL, dllPathSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+	lpLoadDllPath = VirtualAllocEx(hProcess, NULL, dllPathSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 	if (!lpLoadDllPath)
 	{
 		dwErr = GetLastError();
@@ -132,7 +136,7 @@ BOOL inject(DWORD dwPID, char *szDllPath)
 		return FALSE;
 	}
 
-	HANDLE hRemoteThread = CreateRemoteThread(hProcess, NULL, 4096 * 16, (LPTHREAD_START_ROUTINE)lpLoadLibraryAFunction, lpLoadDllPath, NULL, NULL);
+	hRemoteThread = CreateRemoteThread(hProcess, NULL, 4096 * 16, (LPTHREAD_START_ROUTINE)lpLoadLibraryAFunction, lpLoadDllPath, NULL, NULL);
 	if (!hRemoteThread)
 	{
 		dwErr = GetLastError();
